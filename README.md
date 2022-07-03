@@ -1,2 +1,3 @@
-#Tic-tac-toe
- Implemented with React.Js
+# Tic-tac-toe
+<br/>
+Implemented with React.Js
