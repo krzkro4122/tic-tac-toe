@@ -16,63 +16,33 @@ function Square(props) {
 
 
   class Board extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            squares: Array(9).fill(null),
-            oIsNext: false,
-        }
-    }
-
     renderSquare(i) {
         return (
             <Square
-                value={this.state.squares[i]}
-                onClick={() => this.handleClick(i)}
+                value={this.props.squares[i]}
+                onClick={() => this.props.onClick(i)}
             />
         );
     }
 
-    handleClick(i) {
-        const squares = this.state.squares.slice();
-
-        if (calculateWinner(squares) || squares[i])
-            return;
-
-        squares[i] = this.state.oIsNext ? '❌' : '⭕'
-        this.setState({
-            squares: squares,
-            oIsNext: !this.state.oIsNext,
-        })
-    }
-
     render() {
-        let status;
-        const winner = calculateWinner(this.state.squares);
-
-        if (winner)
-            status = `Winner: ${this.state.oIsNext ? '⭕' : '❌'}`;
-        else
-            status = `Current player: ${this.state.oIsNext ? '❌' : '⭕'}`;
-
         return (
             <div>
-            <div className="status">{status}</div>
-            <div className="board-row">
-                {this.renderSquare(0)}
-                {this.renderSquare(1)}
-                {this.renderSquare(2)}
-            </div>
-            <div className="board-row">
-                {this.renderSquare(3)}
-                {this.renderSquare(4)}
-                {this.renderSquare(5)}
-            </div>
-            <div className="board-row">
-                {this.renderSquare(6)}
-                {this.renderSquare(7)}
-                {this.renderSquare(8)}
-            </div>
+                <div className="board-row">
+                    {this.renderSquare(0)}
+                    {this.renderSquare(1)}
+                    {this.renderSquare(2)}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(3)}
+                    {this.renderSquare(4)}
+                    {this.renderSquare(5)}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(6)}
+                    {this.renderSquare(7)}
+                    {this.renderSquare(8)}
+                </div>
             </div>
         );
     }
@@ -80,7 +50,46 @@ function Square(props) {
 
 
 class Game extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            history: [{
+                squares: Array(9).fill(null),
+            }],
+            oIsNext: true,
+        };
+    }
+
+    handleClick(i) {
+        const history = this.state.history;
+        const current = history[history.length - 1];
+        const squares = current.squares;
+
+        if (calculateWinner(squares) || squares[i])
+            return;
+
+        squares[i] = this.state.oIsNext ? '❌' : '⭕'
+        this.setState({
+            history: history.concat([{
+                squares: squares,
+            }]),
+            oIsNext: !this.state.oIsNext,
+        })
+    }
+
     render() {
+        const history = this.state.history;
+        const current = history[history.length - 1];
+        const winner = calculateWinner(current.squares);
+
+        let status;
+
+        if (winner)
+            status = `Winner: ${winner}`;
+        else
+            status = `Current player: ${this.state.oIsNext ? '❌' : '⭕'}`;
+
+
         return (
             <div className="game">
                 <div className="imageContainer">
@@ -94,12 +103,15 @@ class Game extends React.Component {
                     />
                 </div>
                 <div className="game-board">
-                    <Board />
+                    <Board
+                        squares={current.squares}
+                        onClick={(i) => this.handleClick(i)}
+                    />
                 </div>
-                {/* <div className="game-info"> */}
-                    {/* <div>status</div> */}
+                <div className="game-info">
+                    <div>{status}</div>
                     {/* <ol>TODO</ol> */}
-                {/* </div> */}
+                </div>
             </div>
         );
     }
